@@ -1,0 +1,43 @@
+from flask import Flask, render_template, request, url_for, redirect
+import psycopg2
+
+app = Flask(__name__)
+conn = psycopg2.connect(dbname="web",
+                        user="postgres",
+                        password="1603",
+                        host="127.0.0.1",
+                        port="5432")
+
+
+@app.route('/')
+def index():
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM main")
+    users_list = cur.fetchall()
+    return render_template('index1.html', users_list=users_list)
+
+
+@app.route('/add_student', methods=['POST', 'GET'])
+def add_student():
+    cur = conn.cursor()
+    name = request.form['name']
+    surname = request.form['surname']
+    telephone = request.form['telephone']
+    cur.execute(
+        "INSERT INTO main (id, name, surname,telephone)"
+        " VALUES (default, %s, %s, %s)",
+        (id, name, surname, telephone))
+    conn.commit()
+    return redirect(url_for('index'))
+
+
+@app.route('/delete/<string:id>', methods=['POST', 'GET'])
+def delete_student(id):
+    cur = conn.cursor()
+    cur.execute("DELETE FROM main WHERE id = %s", (id,))
+    conn.commit()
+    return redirect(url_for('index'))
+
+
+if __name__ == '__main__':
+    app.run()
