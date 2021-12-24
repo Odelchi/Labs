@@ -1,29 +1,22 @@
-# class Shape:
-#     def __init__(self, x, y):
-#         self.x = x
-#         self.y = y
-#
-#     def move(self, delta_x, delta_y):
-#         self.x = self.x + delta_x
-#         self.y = self.y + delta_y
-#
-#
-# class Square(Shape):
-#     def __init__(self, side=1, x=0, y=0):
-#         super().__init__(x, y)
-#         self.side = side
-
 class Rec:
+    list_of_rectangles = [] #создаю пустой список для работы с методом класса
     "self-ссылка на текущий экземпляр класса"
     def __init__(self, side1, side2):
         self.side1 = side1
         self.side2 = side2
         self.area_ = self.area(side1, side2)
-        self.area_1 = self.count_area(side1, side2)
+        Rec.list_of_rectangles.append(self) # добавляю в список экземпляр класса прямоугольник
     "метод класса привязан к классу, а не к экземпляру,принимает класс в качестве параметра"
+#    @classmethod
+#    def count_area(cls, _side1, _side2):
+#       return _side1 * _side2 ТУТ У МЕНЯ БЫЛО НЕ ТО ЧТО НУЖНО
     @classmethod
-    def count_area(cls, _side1, _side2):
-        return _side1 * _side2
+    def count_all_areas(cls):
+        s = 0 #изначально сумма площадей экземляров равна нулю
+        for i in Rec.list_of_rectangles: # циклом проходимся по списку экземпляров класса и считаем их сумму
+            s += i.side1 * i.side2
+        return s #возвращаем посчитанную сумму
+
     "статический метод не знает к какому классу прикреплен" \
     "Статический метод помогает в достижении инкапсуляции в классе, " \
     "поскольку он не знает о состоянии текущего экземпляра. " \
@@ -37,15 +30,18 @@ class Rec:
     def notice(self):
         print("Прямоугольник со сторонами" + self.side1 + "и" + self.side2)
 
+class Square(Rec):
+  def __init__(self, side):
+    super().__init__(side, side)
+
 
 R1 = Rec(1, 2)
 R2 = Rec(3, 4)
-print(R2.area_)
-print(R1.area_1)
-
-class Square(Rec):
-  def __init__(self, side):
-    super().__init__(side1=1, side2=1)
+S1 = Square(2)
+S2 = Square(5)
+print(R1.area_)
+print(S1.area(S1.side1, S1.side2)) #метод area доступен классу square наследнику класса rec
+print(Rec.count_all_areas())
 
 
 
