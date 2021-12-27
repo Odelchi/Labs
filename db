@@ -12,6 +12,15 @@ def insert(name, surname, tel):
     con.close()
 
 
+def delete(com):
+    con = psycopg2.connect(dbname='web', user='postgres', password='1603', host='localhost', port='5432')
+    cursor = con.cursor()
+    cursor.execute(com)
+    con.commit()
+    con.close()
+
+
+
 def list_users():
     con = psycopg2.connect(dbname='web', user='postgres', password='1603', host='localhost', port='5432')
     cursor = con.cursor()
@@ -22,7 +31,7 @@ def list_users():
         user = list(user)
         total1 = []
         for val in user:
-            total1.append(val.strip())
+            total1.append(str(val).strip())
         total.append(total1)
         listing = []
     for val in total:
@@ -50,28 +59,32 @@ def users():
         name = request.form.get('name')
         surname = request.form.get('surname')
         tel = request.form.get('tel')
-        insert(name,surname,tel)
+        insert(name, surname, tel)
     return render_template('users.html', users=list_users())
 
 @app.route('/users/<username>')
 def check(username):
     users = ''
-    flag = []
-    for i in list_users():
-        if username != i['username']:
-            flag.append(False)
-        else:
-            flag.append(True)
-    if any(flag) == False:
-        abort(404)
     for i in list_users():
         if username == i['username']:
             users = i
     return f'<h2>UserName:{users["username"]} </h2> <br>'\
            f'<h2>Name:{users["name"]} </h2> <br>'\
            f'<h2> Surname:{users["surname"]} </h2> <br>' \
-           f'<h2>Tel:{users["tel"]} </h2> <br>'\
+           f'<h2>Tel:{users["tel"]} </h2> <br>'
 
+@app.route('/users/<username>/delete')
+def delete(username):
+    flag = False #по умолчанию считаю, что человека нет в списке пользователей
+    for i in list_users():
+        if username == i['username']:
+            flag = True
+            users = i
+    if not flag:
+        abort(505)
+    command =(f"DELETE FROM main WHERE name = '{users['name']}' AND surname ='{users['surname']}' AND tel = '{users['tel']}'")
+    delete(command)
+    render_template('users.html', users=list_users())
 
 if __name__ == '__main__':
     app.run(debug=True)
